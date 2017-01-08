@@ -1,0 +1,121 @@
+import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import gaussian_kde
+import scipy.stats as stats
+#from mpl_toolkits.basemap import Basemap
+import folium
+
+def readCSV(filename,index,header):
+	return pd.read_csv(filename, sep=',', engine='python', header=header, index_col=index)
+
+def showInfo(data):
+	data.info()
+	print data.head()
+	pass
+
+def pairedGraph(data,x,y):
+	_fig,_axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
+
+	h = data.iloc[y]
+	r = data.iloc[x]
+	colors = np.random.rand(len(r))
+	_axes[0][0].scatter(r, h, s=10, c=colors, alpha=0.5)
+	_axes[0][1].boxplot([h,r],patch_artist=True,vert=True)
+	_axes[0][2].violinplot([h,r])
+	_axes[1][0].hist([r,h], 20, normed=1, histtype='bar')
+	_axes[1][1].plot(xrange(0,len(h)),h,'-o')
+	_axes[1][1].plot(xrange(0,len(h)),r,'-x')
+	x = xrange(0,len(h))
+	density = gaussian_kde(h)
+        density.covariance_factor = lambda : .25
+        density._compute_covariance()
+	_axes[1][2].plot(x,density(x),'-o')
+	density = gaussian_kde(r)
+	density.covariance_factor = lambda : .25
+	density._compute_covariance()
+	_axes[1][2].plot(x,density(x),'-x')
+	plt.show()
+	pass
+
+def oneGraph(data,x):
+	_fig,_axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
+	
+	h = data.iloc[x]
+	x = xrange(0,len(h))
+	_axes[0][0].boxplot(h,patch_artist=True,vert=True)
+	_axes[0][1].violinplot(h)
+	stats.probplot(h, dist="norm", plot=_axes[0][2])
+	_axes[1][0].plot(x,h,'-o')
+	density = gaussian_kde(h)
+	density.covariance_factor = lambda : .25
+	density._compute_covariance()
+	_axes[1][1].plot(x,density(x))
+	plt.hist(h,bins=20,normed=True)
+	plt.show()
+
+def drawMap(x,y,z):
+	h = data.iloc[y]
+	r = data.iloc[x]
+	z = data.iloc[z]
+	maps = folium.Map(location=[30, 0], zoom_start=2)
+	for a,b,c in zip(r,h,z):
+		print c
+		maps.circle_marker(location=[a, b], popup=str(c))
+
+	maps.create_map('maps/map.html')
+	maps
+	pass
+
+if __name__ == '__main__':
+	try:
+		filename = sys.argv[1]
+
+		st = sys.argv[2].split('=')
+		if st[0]=='header':
+			header = 0 if int(st[1])==1 else None
+		else:
+			raise NameError('header')
+		
+		st = sys.argv[3].split('=')
+		if st[0]=='index':
+			index = 0 if int(st[1])==1 else False
+		else:
+			raise NameError('index')
+
+		st = sys.argv[4].split('=')
+		if st[0]=='info':
+			info = int(st[1])
+		else:
+			raise NameError('info')
+		
+		st = sys.argv[5].split('=')
+		if st[0]=='paired':
+			paired = int(st[1])
+		else:
+			raise NameError('paired')
+		
+		st = sys.argv[6].split('=')
+		if st[0]=='graph':
+			graph = int(st[1])
+		else:
+			raise NameError('graph')
+		
+		x = int(sys.argv[7])
+		y = int(sys.argv[8]) if len(sys.argv)>8 else -1
+		z = int(sys.argv[9]) if len(sys.argv)==10 else 0
+	except:
+		#raise
+		print "Unexpected error:", sys.exc_info()[0]
+
+	plt.style.use('ggplot')
+	data = readCSV(filename, index, header)
+	if info:
+		showInfo(data)
+	if graph:
+		oneGraph(data,x)
+	if paired:
+		pairedGraph(data,x,y)
+	if z:
+		drawMap(x,y,z)
