@@ -7,7 +7,7 @@
 和TE的关系：
 #![NPP&TE]()
 3. Light：
-![](http://ww2.sinaimg.cn/large/006y8lVajw1fbkblrrvw1j31hu0ych2i.jpg)
+![](http://ww2.sinaimg.cn/large/006y8lVajw1fbkbqo9qv9j31hg0yy7f0.jpg)
 4. SO2：
 ![](http://ww1.sinaimg.cn/large/006y8lVajw1fbkbmcd065j31i60y8wqv.jpg)
 5. NO2：
