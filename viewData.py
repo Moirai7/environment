@@ -13,6 +13,9 @@ def readCSV(filename,index,header):
 def showInfo(data,x,y):
 	data.info()
 	print data.head()
+	print data.corr()
+	plt.matshow(data.corr())
+	plt.show()
 	#print data.iloc[:,x]
 	#print data.iloc[:,y]
 	pass
@@ -20,9 +23,9 @@ def showInfo(data,x,y):
 def pairedGraph(data,x,y):
 	h = data.iloc[:,y].values
 	r = data.iloc[:,x].values
-	print type([r,h])
 	import seaborn
-	seaborn.jointplot(x="X", y="TE", data=pd.DataFrame({"TE":h,"X":r}))
+	#seaborn.jointplot(x="X", y="TE", data=pd.DataFrame({"TE":h,"X":r}))
+	seaborn.pairplot(data, hue="TE")
 	seaborn.plt.show()
 	'''
 	_fig,_axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
@@ -86,6 +89,38 @@ def drawMap(x,y,z):
 	maps
 	pass
 
+def regression(df):
+	from sklearn import linear_model
+	from sklearn.metrics import mean_squared_error,r2_score
+	#regex = ['Light']
+	#regex = ['Light','SO2','NO2']
+	regex = ['Light','SO2','NO2','LSTV','NPP']
+	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
+	X = df[regex]
+	y = df['TE']
+	'''
+	lr = linear_model.LinearRegression()
+	lr.fit(X,y)
+	yhat = lr.predict(X = df[regex])
+	#print lr.intercept_,lr.coef_
+	print "MSE:",str(mean_squared_error(df['TE'],yhat))
+	
+	import statsmodels.formula.api as sm
+	linear_model = sm.OLS(y,X)
+	results = linear_model.fit()
+	print results.summary()
+	'''
+	'''
+	reg = linear_model.BayesianRidge()
+	reg.fit(X, y)
+	yhat = reg.predict(X = df[regex])
+	print reg.intercept_,reg.coef_
+	print "MSE:",str(mean_squared_error(df['TE'],yhat))
+	print 'R-squared:',str(r2_score(df['TE'],yhat))
+	'''
+	
+	pass
+
 if __name__ == '__main__':
 	try:
 		filename = sys.argv[1]
@@ -139,3 +174,4 @@ if __name__ == '__main__':
 		pairedGraph(data,x,y)
 	if z:
 		drawMap(x,y,z)
+	regression(data)
