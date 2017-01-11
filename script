@@ -1,2 +1,2 @@
 #!/bin/bash
-python viewData.py $1 header=1 index=1 info=1 paired=0 graph=1 5 0
+python viewData.py $1 header=1 index=1 info=1 paired=1 graph=0 5 0

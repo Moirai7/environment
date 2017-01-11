@@ -13,15 +13,19 @@ def readCSV(filename,index,header):
 def showInfo(data,x,y):
 	data.info()
 	print data.head()
-	print data.iloc[:,x]
-	print data.iloc[:,y]
+	#print data.iloc[:,x]
+	#print data.iloc[:,y]
 	pass
 
 def pairedGraph(data,x,y):
-	_fig,_axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
-
 	h = data.iloc[:,y].values
 	r = data.iloc[:,x].values
+	print type([r,h])
+	import seaborn
+	seaborn.jointplot(x="X", y="TE", data=pd.DataFrame({"TE":h,"X":r}))
+	seaborn.plt.show()
+	'''
+	_fig,_axes = plt.subplots(nrows=2, ncols=3, figsize=(15, 9))
 	colors = np.random.rand(len(r))
 	_axes[0][0].scatter(r, h, s=100, c=colors, alpha=0.5)
 	_axes[0][0].set_title('scatter')
@@ -45,6 +49,7 @@ def pairedGraph(data,x,y):
 	density._compute_covariance()
 	_axes[1][2].plot(x,density(x),'-x')
 	plt.show()
+	'''
 	pass
 
 def oneGraph(data,x):
