@@ -45,7 +45,8 @@
 #贝叶斯
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_10.png)
 
-#
+#多项式
+
 
 
 

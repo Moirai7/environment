@@ -98,27 +98,26 @@ def regression(df):
 	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
 	X = df[regex]
 	y = df['TE']
+
 	'''
-	lr = linear_model.LinearRegression()
-	lr.fit(X,y)
-	yhat = lr.predict(X = df[regex])
-	#print lr.intercept_,lr.coef_
-	print "MSE:",str(mean_squared_error(df['TE'],yhat))
-	
 	import statsmodels.formula.api as sm
 	linear_model = sm.OLS(y,X)
 	results = linear_model.fit()
 	print results.summary()
 	'''
-	'''
-	reg = linear_model.BayesianRidge()
-	reg.fit(X, y)
-	yhat = reg.predict(X = df[regex])
-	print reg.intercept_,reg.coef_
+	#clf = linear_model.LinearRegression()
+	#clf == linear_model.BayesianRidge()
+	#clf = linear_model.LogisticRegression(C=0.01, penalty='l1', tol=0.01)
+
+	from sklearn.preprocessing import PolynomialFeatures
+	from sklearn.pipeline import Pipeline
+	clf = Pipeline([('poly', PolynomialFeatures(degree=3)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	clf.fit(X,y)
+	yhat = clf.predict(X = df[regex])
+	#print clf.intercept_,clf.coef_
+	print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(df['TE'],yhat))
 	print 'R-squared:',str(r2_score(df['TE'],yhat))
-	'''
-	
 	pass
 
 if __name__ == '__main__':
