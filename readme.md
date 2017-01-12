@@ -46,6 +46,13 @@
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_10.png)
 
 #多项式
+5次
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_11.png)
+
+#其他
+取log，效果很差
+
+----
 
 
 

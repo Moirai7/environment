@@ -92,9 +92,9 @@ def drawMap(x,y,z):
 def regression(df):
 	from sklearn import linear_model
 	from sklearn.metrics import mean_squared_error,r2_score
-	#regex = ['Light']
+	regex = ['Light']
 	#regex = ['Light','SO2','NO2']
-	regex = ['Light','SO2','NO2','LSTV','NPP']
+	#regex = ['Light','SO2','NO2','LSTV','NPP']
 	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
 	X = df[regex]
 	y = df['TE']
@@ -107,17 +107,21 @@ def regression(df):
 	'''
 	#clf = linear_model.LinearRegression()
 	#clf == linear_model.BayesianRidge()
-	#clf = linear_model.LogisticRegression(C=0.01, penalty='l1', tol=0.01)
-
+	'''
 	from sklearn.preprocessing import PolynomialFeatures
 	from sklearn.pipeline import Pipeline
-	clf = Pipeline([('poly', PolynomialFeatures(degree=3)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
 	clf.fit(X,y)
 	yhat = clf.predict(X = df[regex])
 	#print clf.intercept_,clf.coef_
 	print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(df['TE'],yhat))
 	print 'R-squared:',str(r2_score(df['TE'],yhat))
+	'''
+	
+	pass
+
+def cluster(df):
 	pass
 
 if __name__ == '__main__':
