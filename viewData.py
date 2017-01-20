@@ -14,6 +14,7 @@ def showInfo(data,x,y):
 	data.info()
 	print data.head()
 	print data.corr()
+	print data.describe()
 	plt.matshow(data.corr())
 	plt.show()
 	#print data.iloc[:,x]
@@ -122,6 +123,7 @@ def regression(df):
 	pass
 
 def cluster(df):
+	
 	pass
 
 if __name__ == '__main__':
