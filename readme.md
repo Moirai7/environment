@@ -4,21 +4,22 @@
 1. 去除TE=0的值
 ![TE](http://ww4.sinaimg.cn/large/006y8lVajw1fbkbgj08xxj31hg0yy7f0.jpg)
 41165行，无空值。
-
+和后面第7点的分析一样，这一列的数据尾部差异特别大。
+ 
 2. NPP：
 ![NPP](http://ww3.sinaimg.cn/large/006y8lVajw1fbkazm2x9wj31ik0yck7x.jpg)
-无空值，中值500左右，基本符合正态分布。
+无空值，中值500左右，基本符合正态分布，0值可能影响训练数据的准确性。
 和TE的关系：
 ![NPP&TE](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_1.png)
 
 3. Light：
 ![](http://ww3.sinaimg.cn/large/006y8lVajw1fbkbtm2w4xj31hu0ych2i.jpg)
-和TE关系：
+数据的尾部跨度很大，没有明显的规律。和TE关系：
 ![Light&TE](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_2.png)
 
 4. SO2：
 ![](http://ww1.sinaimg.cn/large/006y8lVajw1fbkbmcd065j31i60y8wqv.jpg)
-和TE关系：
+0值过多，和TE关系：
 ![SO2&TE](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_3.png)
 
 5. NO2：
