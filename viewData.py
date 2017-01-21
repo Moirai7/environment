@@ -4,17 +4,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
 import scipy.stats as stats
-#from mpl_toolkits.basemap import Basemap
-import folium
+from sklearn import preprocessing
 
 def readCSV(filename,index,header):
 	return pd.read_csv(filename, sep=',', engine='python', header=header, index_col=index)
 
 def showInfo(data,x,y):
+	from math import exp
 	data.info()
 	print data.head()
+	info = preprocessing.scale(data)
+	rows = len(data.index)
+	for i in xrange(rows):
+		dataRow = info[i,1:8]
+		label = 1.0/(1.0+exp(-info[i,0]))
+		plt.plot(dataRow,color=plt.cm.RdYlBu(label),alpha=0.1)		
+	plt.xticks(xrange(-1,7),data.columns)
 	print data.corr()
-	print data.describe()
 	plt.matshow(data.corr())
 	plt.show()
 	#print data.iloc[:,x]
@@ -78,6 +84,8 @@ def oneGraph(data,x):
 	plt.show()
 
 def drawMap(x,y,z):
+	from mpl_toolkits.basemap import Basemap
+	import folium
 	h = data.iloc[:,y].values
 	r = data.iloc[:,x].values
 	z = data.iloc[:,z].values
