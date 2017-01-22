@@ -56,7 +56,9 @@ NO2、LSTV的差异也是一样，可以接受。
 #贝叶斯
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_10.png)
 
-#多项式
+#随机森林
+
+#多项式+线性
 5次
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_11.png)
 

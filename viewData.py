@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -100,23 +101,25 @@ def drawMap(x,y,z):
 
 def regression(df):
 	from sklearn import linear_model
+	from sklearn import ensemble
 	from sklearn.metrics import mean_squared_error,r2_score
-	regex = ['Light']
+	from sklearn.cross_validation import train_test_split
+	#regex = ['Light']
 	#regex = ['Light','SO2','NO2']
 	#regex = ['Light','SO2','NO2','LSTV','NPP']
-	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
+	regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
 	X = df[regex]
 	y = df['TE']
-
+	xTrain,xTest,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
 	'''
+	#线性回归
 	import statsmodels.formula.api as sm
 	linear_model = sm.OLS(y,X)
 	results = linear_model.fit()
 	print results.summary()
 	'''
-	#clf = linear_model.LinearRegression()
-	#clf == linear_model.BayesianRidge()
 	'''
+	#多项式
 	from sklearn.preprocessing import PolynomialFeatures
 	from sklearn.pipeline import Pipeline
 	clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
@@ -124,10 +127,37 @@ def regression(df):
 	yhat = clf.predict(X = df[regex])
 	#print clf.intercept_,clf.coef_
 	print clf.named_steps['linear'].coef_
+	'''
+	nTreeList = xrange(50,500,10)
+	mse = []
+	for i in nTreeList:
+		depth = None
+		maxFeat = 4
+		clf = ensemble.RandomForestRegressor(n_estimators=i,max_depth=depth,max_features=maxFeat,oob_score=False,random_state=531)
+		clf.fit(X,y)
+		yhat = clf.predict(X)
+		mse.append(mean_squared_error(df['TE'],yhat))
+	plt.plot(nTreeList,mse)
+	plt.show()
+	'''
+	feature = clf.feature_importances_
+	feature = feature/feature.max()
+	sorted_idx = np.argsort(feature)
+	barpos = np.arange(sorted_idx.shape[0])+.5
+	plt.barh(barpos,feature[sorted_idx],align='center')
+	plt.yticks(barpos,X.column[sorted_idx])
+	plt.show()
+	'''
+	'''
+	#线性回归+贝叶斯
+	clf = linear_model.LinearRegression()
+	#clf == linear_model.BayesianRidge()
+	clf.fit(X,y)
+	yhat = clf.predict(X = df[regex])
+	print clf.intercept_,clf.coef_
 	print "MSE:",str(mean_squared_error(df['TE'],yhat))
 	print 'R-squared:',str(r2_score(df['TE'],yhat))
 	'''
-	
 	pass
 
 def cluster(df):
