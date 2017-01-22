@@ -84,7 +84,7 @@
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_16.png)    
 
 # 梯度提升
- 和随机森林一样，泛化能力差。
+ 和随机森林一样，泛化能力差。     
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_19.png) 
 
 #其他      
