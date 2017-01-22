@@ -104,6 +104,8 @@ def regression(df):
 	from sklearn import ensemble
 	from sklearn.metrics import mean_squared_error,r2_score
 	from sklearn.cross_validation import train_test_split
+	from sklearn.preprocessing import PolynomialFeatures
+	from sklearn.pipeline import Pipeline
 	#regex = ['Light']
 	#regex = ['Light','SO2','NO2']
 	#regex = ['Light','SO2','NO2','LSTV','NPP']
@@ -117,16 +119,6 @@ def regression(df):
 	linear_model = sm.OLS(y,X)
 	results = linear_model.fit()
 	print results.summary()
-	'''
-	'''
-	#多项式
-	from sklearn.preprocessing import PolynomialFeatures
-	from sklearn.pipeline import Pipeline
-	clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
-	clf.fit(X,y)
-	yhat = clf.predict(X = df[regex])
-	#print clf.intercept_,clf.coef_
-	print clf.named_steps['linear'].coef_
 	'''
 	'''
 	#找随机森林参数 50，80
@@ -147,16 +139,18 @@ def regression(df):
 		t = plt.text(x, y, str(x) , fontproperties=font, **alignment)
 	plt.show()
 	'''
-	#线性回归+贝叶斯+随机森林
+	#线性回归+贝叶斯+随机森林+多项式
 	#clf = linear_model.LinearRegression()
-	#clf == linear_model.BayesianRidge()
+	#clf = linear_model.BayesianRidge()
 	clf = ensemble.RandomForestRegressor(n_estimators=230,max_depth=None,max_features=4,oob_score=False,random_state=531)
-	clf.fit(X,y)
-	yhat = clf.predict(X = df[regex])
+	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	clf.fit(xTrain,yTrain)
+	yhat = clf.predict(X = xTest)
 	#print clf.intercept_,clf.coef_
-	print "MSE:",str(mean_squared_error(df['TE'],yhat))
-	print 'R-squared:',str(r2_score(df['TE'],yhat))
-	
+	#print clf.named_steps['linear'].coef_
+	print "MSE:",str(mean_squared_error(yTest,yhat))
+	print 'R-squared:',str(r2_score(yTest,yhat))
+	'''
 	#算随机森林feature importance
 	feature = clf.feature_importances_
 	feature = feature/feature.max()
@@ -165,6 +159,7 @@ def regression(df):
 	plt.barh(barpos,feature[sorted_idx],align='center')
 	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
+	'''
 	pass
 
 def cluster(df):
