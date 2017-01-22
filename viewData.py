@@ -128,7 +128,8 @@ def regression(df):
 	#print clf.intercept_,clf.coef_
 	print clf.named_steps['linear'].coef_
 	'''
-	nTreeList = xrange(50,500,10)
+	#找随机森林参数 50，80
+	nTreeList = xrange(5,500,10)
 	mse = []
 	for i in nTreeList:
 		depth = None
@@ -137,26 +138,33 @@ def regression(df):
 		clf.fit(X,y)
 		yhat = clf.predict(X)
 		mse.append(mean_squared_error(df['TE'],yhat))
+	from matplotlib.font_manager import FontProperties
+	font = FontProperties()
+	alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
 	plt.plot(nTreeList,mse)
+	for x,y in zip(nTreeList,mse):
+		t = plt.text(x, y, str(x) , fontproperties=font, **alignment)
 	plt.show()
 	'''
+	print X.columns[1]
+	#线性回归+贝叶斯+随机森林
+	#clf = linear_model.LinearRegression()
+	#clf == linear_model.BayesianRidge()
+	clf = ensemble.RandomForestRegressor(n_estimators=80,max_depth=None,max_features=4,oob_score=False,random_state=531)
+	clf.fit(X,y)
+	yhat = clf.predict(X = df[regex])
+	#print clf.intercept_,clf.coef_
+	print "MSE:",str(mean_squared_error(df['TE'],yhat))
+	print 'R-squared:',str(r2_score(df['TE'],yhat))
+	
+	#算随机森林feature importance
 	feature = clf.feature_importances_
 	feature = feature/feature.max()
 	sorted_idx = np.argsort(feature)
 	barpos = np.arange(sorted_idx.shape[0])+.5
 	plt.barh(barpos,feature[sorted_idx],align='center')
-	plt.yticks(barpos,X.column[sorted_idx])
+	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
-	'''
-	'''
-	#线性回归+贝叶斯
-	clf = linear_model.LinearRegression()
-	#clf == linear_model.BayesianRidge()
-	clf.fit(X,y)
-	yhat = clf.predict(X = df[regex])
-	print clf.intercept_,clf.coef_
-	print "MSE:",str(mean_squared_error(df['TE'],yhat))
-	print 'R-squared:',str(r2_score(df['TE'],yhat))
 	'''
 	pass
 
