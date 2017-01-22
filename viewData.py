@@ -102,6 +102,7 @@ def drawMap(x,y,z):
 def regression(df):
 	from sklearn import linear_model
 	from sklearn import ensemble
+	from sklearn.tree import DecisionTreeRegressor
 	from sklearn.metrics import mean_squared_error,r2_score
 	from sklearn.cross_validation import train_test_split
 	from sklearn.preprocessing import PolynomialFeatures
@@ -142,14 +143,23 @@ def regression(df):
 	#线性回归+贝叶斯+随机森林+多项式
 	#clf = linear_model.LinearRegression()
 	#clf = linear_model.BayesianRidge()
-	clf = ensemble.RandomForestRegressor(n_estimators=230,max_depth=None,max_features=4,oob_score=False,random_state=531)
+	#clf = ensemble.RandomForestRegressor(n_estimators=230,max_depth=None,max_features=4,oob_score=False,random_state=531)
 	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	#clf = ensemble.GradientBoostingRegressor(n_estimators=2000,max_depth=7,learning_rate=0.01,subsample=0.5,loss='ls')
+	
+	clf = DecisionTreeRegressor(max_depth=7)
+	clf.fit(X,y)
+	yhat = clf.predict(X = X)
+	print "MSE:",str(mean_squared_error(y,yhat))
+	print 'R-squared:',str(r2_score(y,yhat))
+	'''
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
 	#print clf.intercept_,clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
+	'''
 	'''
 	#算随机森林feature importance
 	feature = clf.feature_importances_
