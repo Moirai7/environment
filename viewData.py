@@ -128,8 +128,9 @@ def regression(df):
 	#print clf.intercept_,clf.coef_
 	print clf.named_steps['linear'].coef_
 	'''
+	'''
 	#找随机森林参数 50，80
-	nTreeList = xrange(5,500,10)
+	nTreeList = xrange(50,250,10)
 	mse = []
 	for i in nTreeList:
 		depth = None
@@ -146,11 +147,10 @@ def regression(df):
 		t = plt.text(x, y, str(x) , fontproperties=font, **alignment)
 	plt.show()
 	'''
-	print X.columns[1]
 	#线性回归+贝叶斯+随机森林
 	#clf = linear_model.LinearRegression()
 	#clf == linear_model.BayesianRidge()
-	clf = ensemble.RandomForestRegressor(n_estimators=80,max_depth=None,max_features=4,oob_score=False,random_state=531)
+	clf = ensemble.RandomForestRegressor(n_estimators=230,max_depth=None,max_features=4,oob_score=False,random_state=531)
 	clf.fit(X,y)
 	yhat = clf.predict(X = df[regex])
 	#print clf.intercept_,clf.coef_
@@ -165,7 +165,6 @@ def regression(df):
 	plt.barh(barpos,feature[sorted_idx],align='center')
 	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
-	'''
 	pass
 
 def cluster(df):

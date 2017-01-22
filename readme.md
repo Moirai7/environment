@@ -9,8 +9,7 @@
 
 ## NPP：
  ![NPP](http://ww3.sinaimg.cn/large/006y8lVajw1fbkazm2x9wj31ik0yck7x.jpg)
- 无空值，中值500左右，基本符合正态分布，0值可能影响训练数据的准确性。
- 和TE的关系：
+ 无空值，中值500左右，基本符合正态分布，0值可能影响训练数据的准确性。和TE的关系：
  ![NPP&TE](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_1.png)
 
 ## Light：
@@ -67,8 +66,10 @@
 # 随机森林
  决策树数目和其对应的RMSE变化曲线：
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_14.png)
- 使用最佳参数得到的结果：
+ 每个参数的重要性：
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_15.png)
+ 使用最佳参数得到的结果：
+ ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_16.png)
 
 #其他
  取log，效果很差
