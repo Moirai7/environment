@@ -14,7 +14,7 @@ def readCSV(filename,index,header):
 def showInfo(data,x,y):
 	from math import exp
 	data.info()
-	print data.head()
+	#print data.head()
 	'''
 	info = preprocessing.scale(data)
 	rows = len(data.index)
@@ -119,8 +119,8 @@ def regression(df):
 	'''
 	#线性回归
 	import statsmodels.formula.api as sm
-	linear_model = sm.OLS(y,X)
-	results = linear_model.fit()
+	lmodel = sm.OLS(yTrain,xTrain)
+	results = lmodel.fit()
 	print results.summary()
 	'''
 	'''
@@ -142,6 +142,7 @@ def regression(df):
 		t = plt.text(x, y, str(x) , fontproperties=font, **alignment)
 	plt.show()
 	'''
+	#'''
 	#线性回归+贝叶斯+随机森林+多项式
 	clf = linear_model.LinearRegression()
 	#clf = linear_model.BayesianRidge()
@@ -152,19 +153,22 @@ def regression(df):
 	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.BayesianRidge())])
 	#clf = ensemble.AdaBoostRegressor(linear_model.BayesianRidge(),n_estimators=300, random_state=np.random.RandomState(1))
 	#clf = ensemble.AdaBoostRegressor(DecisionTreeRegressor(max_depth=7),n_estimators=300, random_state=np.random.RandomState(1))
+	#clf = DecisionTreeRegressor(max_depth=7)
+	#'''
 	'''
-	clf = DecisionTreeRegressor(max_depth=7)
 	clf.fit(X,y)
 	yhat = clf.predict(X = X)
 	print "MSE:",str(mean_squared_error(y,yhat))
 	print 'R-squared:',str(r2_score(y,yhat))
 	'''
+	#'''
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
-	#print clf.intercept_,clf.coef_
+	print clf.intercept_,clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
+	#'''
 	'''
 	#算随机森林feature importance
 	feature = clf.feature_importances_
@@ -255,7 +259,7 @@ if __name__ == '__main__':
 
 	plt.style.use('ggplot')
 	data = readCSV(filename, index, header)
-	data = data[data.TE!=0]
+	#data = data[data.TE!=0]
 
 	if info:
 		showInfo(data,x,y)
@@ -272,11 +276,15 @@ if __name__ == '__main__':
 	yTest = []
 	yhat = []
 	for c in cluster:
+		print "###################"
+		print len(data[data.cluster==c])
 		#showInfo(data[data.cluster==c],x,y)
 		t,p = regression(data[data.cluster==c])
 		yTest.append(pd.DataFrame(t))
 		yhat.append(pd.DataFrame(p))
 	yTest = pd.concat(yTest)
 	yhat = pd.concat(yhat)
-	print "MSE:",str(mean_squared_error(yTest,yhat))
-        print 'R-squared:',str(r2_score(yTest,yhat))
+	print yTest.values
+	print yhat.values
+	print "MSE:",str(mean_squared_error(yTest.values,yhat.values))
+        print 'R-squared:',str(r2_score(yTest.values,yhat.values))
