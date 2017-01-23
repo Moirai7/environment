@@ -6,6 +6,7 @@ import numpy as np
 from scipy.stats import gaussian_kde
 import scipy.stats as stats
 from sklearn import preprocessing
+from sklearn.metrics import mean_squared_error,r2_score
 
 def readCSV(filename,index,header):
 	return pd.read_csv(filename, sep=',', engine='python', header=header, index_col=index)
@@ -14,6 +15,7 @@ def showInfo(data,x,y):
 	from math import exp
 	data.info()
 	print data.head()
+	'''
 	info = preprocessing.scale(data)
 	rows = len(data.index)
 	for i in xrange(rows):
@@ -26,6 +28,7 @@ def showInfo(data,x,y):
 	plt.show()
 	#print data.iloc[:,x]
 	#print data.iloc[:,y]
+	'''
 	pass
 
 def pairedGraph(data,x,y):
@@ -103,7 +106,6 @@ def regression(df):
 	from sklearn import linear_model
 	from sklearn import ensemble
 	from sklearn.tree import DecisionTreeRegressor
-	from sklearn.metrics import mean_squared_error,r2_score
 	from sklearn.cross_validation import train_test_split
 	from sklearn.preprocessing import PolynomialFeatures
 	from sklearn.pipeline import Pipeline
@@ -129,9 +131,9 @@ def regression(df):
 		depth = None
 		maxFeat = 4
 		clf = ensemble.RandomForestRegressor(n_estimators=i,max_depth=depth,max_features=maxFeat,oob_score=False,random_state=531)
-		clf.fit(X,y)
-		yhat = clf.predict(X)
-		mse.append(mean_squared_error(df['TE'],yhat))
+		clf.fit(xTrain,yTrain)
+		yhat = clf.predict(xTest)
+		mse.append(mean_squared_error(yTest,yhat))
 	from matplotlib.font_manager import FontProperties
 	font = FontProperties()
 	alignment = {'horizontalalignment': 'center', 'verticalalignment': 'baseline'}
@@ -141,12 +143,16 @@ def regression(df):
 	plt.show()
 	'''
 	#线性回归+贝叶斯+随机森林+多项式
-	#clf = linear_model.LinearRegression()
+	clf = linear_model.LinearRegression()
 	#clf = linear_model.BayesianRidge()
-	#clf = ensemble.RandomForestRegressor(n_estimators=230,max_depth=None,max_features=4,oob_score=False,random_state=531)
-	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	#clf = ensemble.RandomForestRegressor(n_estimators=200,max_depth=None,max_features=4,oob_score=False,random_state=531)
 	#clf = ensemble.GradientBoostingRegressor(n_estimators=2000,max_depth=7,learning_rate=0.01,subsample=0.5,loss='ls')
-	
+	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
+	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', ensemble.RandomForestRegressor(n_estimators=200,max_depth=None,max_features=4,oob_score=False,random_state=531))])
+	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.BayesianRidge())])
+	#clf = ensemble.AdaBoostRegressor(linear_model.BayesianRidge(),n_estimators=300, random_state=np.random.RandomState(1))
+	#clf = ensemble.AdaBoostRegressor(DecisionTreeRegressor(max_depth=7),n_estimators=300, random_state=np.random.RandomState(1))
+	'''
 	clf = DecisionTreeRegressor(max_depth=7)
 	clf.fit(X,y)
 	yhat = clf.predict(X = X)
@@ -160,7 +166,6 @@ def regression(df):
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
 	'''
-	'''
 	#算随机森林feature importance
 	feature = clf.feature_importances_
 	feature = feature/feature.max()
@@ -170,11 +175,42 @@ def regression(df):
 	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
 	'''
-	pass
+	return (yTest,yhat)
 
-def cluster(df):
+def clusters_test(data):
+        from sklearn.cluster import KMeans
+        scores = []
+	#regex = ['Light','SO2','NO2','LSTV','NPP']
+	#regex = ['Light','SO2','NO2','LSTV','NPP','X','Y']
+	#regex = ['X','Y']
+	regex = ['TE']
+	X = data[regex]
 	
-	pass
+        for i in xrange(3,80,1):
+                km = KMeans(n_clusters=i, init='k-means++', max_iter=300, n_init=1,verbose=False)
+                yhat = km.fit_predict(X)
+                scores.append(-km.score(X)/len(X))
+	for a,b in zip(scores,xrange(3,80,1)):
+		print b,a
+        plt.figure(figsize=(8,4))
+        plt.plot(xrange(3,80,1),scores,label="error",color="red",linewidth=1)
+        plt.xlabel("n_features")
+        plt.ylabel("error")
+        plt.legend()
+        plt.show()
+
+def clusters(df):
+        from sklearn.cluster import KMeans
+        scores = []
+	#regex = ['Light','SO2','NO2','LSTV','NPP','X','Y']
+	#regex = ['X','Y']
+	regex = ['TE']
+	X = data[regex]
+	yhat = KMeans(n_clusters=10, init='k-means++', max_iter=300, n_init=1,verbose=False).fit_predict(X)
+	
+	#plt.scatter(data['X'],data['Y'],c=yhat)
+	#plt.show()
+	return yhat
 
 if __name__ == '__main__':
 	try:
@@ -229,4 +265,18 @@ if __name__ == '__main__':
 		pairedGraph(data,x,y)
 	if z:
 		drawMap(x,y,z)
-	regression(data)
+	#regression(data)
+	#clusters_test(data)
+	data['cluster'] = clusters(data)
+	cluster = data.drop_duplicates(['cluster'])['cluster']
+	yTest = []
+	yhat = []
+	for c in cluster:
+		#showInfo(data[data.cluster==c],x,y)
+		t,p = regression(data[data.cluster==c])
+		yTest.append(pd.DataFrame(t))
+		yhat.append(pd.DataFrame(p))
+	yTest = pd.concat(yTest)
+	yhat = pd.concat(yhat)
+	print "MSE:",str(mean_squared_error(yTest,yhat))
+        print 'R-squared:',str(r2_score(yTest,yhat))

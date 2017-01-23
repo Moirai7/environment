@@ -61,6 +61,7 @@
 ## 使用有相对显著相关性的Light计算结果：
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_7.png)
 ## +SO2,NO2
+ 泛化结果0.092，这是结果比较好的。
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_8.png)
 ## 所有X
  后面的数据都使用了所有的属性来计算，感觉特征太少了，加入更多特征更有利。
@@ -68,6 +69,7 @@
 
 # 贝叶斯
  贝叶斯的结果虽然不好，但是它的泛化能力不错。   
+ 泛化结果0.092.     
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_10.png)
 
 # 多项式+线性
@@ -77,23 +79,75 @@
 
 # 随机森林
  决策树数目和其对应的RMSE变化曲线：      
- ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_14.png)      
+ <!--![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_14.png)      -->
+ ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_20.png)      
  每个参数的重要性：      
- ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_15.png)      
- 使用最佳参数得到的结果，决策树的结果还是比较好的，但是泛化能力**很差**：      
+ <!--![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_15.png)      -->
+ ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_21.png)      
+ 使用最佳参数得到的结果，决策树的结果还是比较好的，但是泛化能力**很差**,0.0424：      
  ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_16.png)    
+ 
+ 多项式+随机森林，泛化结果：0.076
 
 # 梯度提升
  和随机森林一样，泛化能力差。     
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_19.png) 
 
-#其他      
+# 其他      
  取log，效果很差      
+
+# 聚类
+## 只用xy聚类
+聚类的总数参数选择：   
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_22.png)   
+
+聚类结果：
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_23.png)   
+
++线性：0.113
++贝叶斯：0.021
++随机森林：0.1219
++梯度提升：-0.086
++多项式&线性：-96
++多项式&随机森林：0.136
++多项式&贝叶斯：太差
++贝叶斯&boosting：差
++决策树&boosting：差
+
+##用除了TE以外的数聚类：
+参数选择：   
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_24.png)
+
+聚类结果：
++线性：0.126
++贝叶斯：0.027
++随机森林：0.116
++梯度提升：差
++多项式&线性：差
++多项式&随机森林：0.08
++多项式&贝叶斯：差
++贝叶斯&boosting：差
++决策树&boosting：差
+
+##用TE聚类：
+参数选择：
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_25.png)
+
+聚类结果：
++线性：0.95
++贝叶斯：0.98
++随机森林：0.98
++梯度提升：0.98
++多项式&线性：差
++多项式&随机森林：0.982
++多项式&贝叶斯：
++贝叶斯&boosting：
++决策树&boosting：0.97
 
 ----
  TODO：   
- 1. 尝试多次方+随机森林
- 2. 试一下bagging
+ 1. 尝试多次方+随机森林(done)
+ 2. 试一下bagging(done)
  3. 用地理位置X,Y聚类，每个聚类分别做回归试一下
  4. 用所有的数据聚类，再试一下回归
  
