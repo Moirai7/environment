@@ -112,7 +112,8 @@ def regression(df):
 	#regex = ['Light']
 	#regex = ['Light','SO2','NO2']
 	#regex = ['Light','SO2','NO2','LSTV','NPP']
-	regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
+	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
+	regex = ['NPP','Light','SO2','NO2','LSTV','X','Y']
 	X = df[regex]
 	y = df['TE']
 	xTrain,xTest,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
@@ -164,7 +165,8 @@ def regression(df):
 	#'''
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
-	print clf.intercept_,clf.coef_
+	#print clf.intercept_,
+	print clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
@@ -179,7 +181,7 @@ def regression(df):
 	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
 	'''
-	return (yTest,yhat)
+	return (xTest,yTest,yhat)
 
 def clusters_test(data):
         from sklearn.cluster import KMeans
@@ -272,19 +274,26 @@ if __name__ == '__main__':
 	#regression(data)
 	#clusters_test(data)
 	data['cluster'] = clusters(data)
+	data.to_csv('result/cluster.csv')
 	cluster = data.drop_duplicates(['cluster'])['cluster']
 	yTest = []
 	yhat = []
+	xTest = []
 	for c in cluster:
 		print "###################"
-		print len(data[data.cluster==c])
+		print "count(cluster): ",str(len(data[data.cluster==c]))
 		#showInfo(data[data.cluster==c],x,y)
-		t,p = regression(data[data.cluster==c])
+		x,t,p = regression(data[data.cluster==c])
+		xTest.append(pd.DataFrame(x))
 		yTest.append(pd.DataFrame(t))
 		yhat.append(pd.DataFrame(p))
-	yTest = pd.concat(yTest)
-	yhat = pd.concat(yhat)
-	print yTest.values
-	print yhat.values
-	print "MSE:",str(mean_squared_error(yTest.values,yhat.values))
-        print 'R-squared:',str(r2_score(yTest.values,yhat.values))
+	xTest = pd.concat(xTest,ignore_index=True)
+	yTest = pd.concat(yTest,ignore_index=True)
+	yhat = pd.concat(yhat,ignore_index=True)
+	res = xTest
+	res['yTest'] = yTest
+	res['yPred'] = yhat
+	res.to_csv('result/pred.csv')
+	print "###################"
+	print "MSE:",str(mean_squared_error(yTest,yhat))
+        print 'R-squared:',str(r2_score(yTest,yhat))
