@@ -134,23 +134,23 @@
 ![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_25.png)
 
 聚类结果：
-+线性：0.95 
-![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_29.png)
++线性：0.95    
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_29.png)    
 +贝叶斯：0.98    
-+随机森林：0.98  
-![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_28.png)
-+梯度提升：0.98    
-![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_30.png)
-+多项式&线性：差   
-+多项式&随机森林：0.982    
++随机森林：0.98   
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_28.png)   
++梯度提升：0.98      
+![](https://raw.githubusercontent.com/Moirai7/environment/master/pic/figure_30.png)    
++多项式&线性：差     
++多项式&随机森林：0.982     
 +多项式&贝叶斯：   
 +贝叶斯&boosting：   
-+决策树&boosting：0.97   
++决策树&boosting：0.97    
  
  负数原因：
- Srinivas in talking about the ADJUSTED R2. I believe you have a small R2 which turns negative when you calculate the ADJUSTED R2. As the adjusted R2 is given by {[(n -1)/(n-k)]*R2 + (1-k)/(n-k)}, you'll get a negative value whenever n
+ Srinivas in talking about the ADJUSTED R2. I believe you have a small R2 which turns negative when you calculate the ADJUSTED R2. As the adjusted R2 is given by {[(n -1)/(n-k)]*R2 + (1-k)/(n-k)}, you'll get a negative value whenever n   
  
- R^2 (coefficient of determination) regression score function.
+ R^2 (coefficient of determination) regression score function.    
  Best possible score is 1.0 and it can be negative (because the model can be arbitrarily worse). A constant model that always predicts the expected value of y, disregarding the input features, would get a R^2 score of 0.0.
 
 
