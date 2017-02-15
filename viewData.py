@@ -15,7 +15,6 @@ def showInfo(data,x,y):
 	from math import exp
 	data.info()
 	#print data.head()
-	'''
 	info = preprocessing.scale(data)
 	rows = len(data.index)
 	for i in xrange(rows):
@@ -28,7 +27,6 @@ def showInfo(data,x,y):
 	plt.show()
 	#print data.iloc[:,x]
 	#print data.iloc[:,y]
-	'''
 	pass
 
 def pairedGraph(data,x,y):
@@ -102,6 +100,18 @@ def drawMap(x,y,z):
 	maps
 	pass
 
+def showRes(yTest,yhat):
+	x = []
+	for t,h in zip(yTest,yhat):
+		#print t,h
+		if t == 0:
+			x.append(h/(t+1))
+		else:
+			x.append(h/t)
+	plt.hist(x,bins=20,normed=True)
+	plt.show()
+	pass
+
 def regression(df):
 	from sklearn import linear_model
 	from sklearn import ensemble
@@ -112,11 +122,13 @@ def regression(df):
 	#regex = ['Light']
 	#regex = ['Light','SO2','NO2']
 	#regex = ['Light','SO2','NO2','LSTV','NPP']
-	#regex = ['Light','SO2','NO2','X','Y','LSTV','NPP']
 	regex = ['NPP','Light','SO2','NO2','LSTV','X','Y']
-	X = df[regex]
+	regex2 = ['cluster','NPP','Light','SO2','NO2','LSTV','X','Y']
+	X = df[regex2]
 	y = df['TE']
-	xTrain,xTest,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
+	xTrain2,xTest2,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
+	xTrain = preprocessing.scale(xTrain2[regex])
+	xTest = preprocessing.scale(xTest2[regex])
 	'''
 	#线性回归
 	import statsmodels.formula.api as sm
@@ -166,7 +178,7 @@ def regression(df):
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
 	#print clf.intercept_,
-	print clf.coef_
+	#print clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
@@ -181,7 +193,7 @@ def regression(df):
 	plt.yticks(barpos,X.columns[sorted_idx])
 	plt.show()
 	'''
-	return (xTest,yTest,yhat)
+	return (xTest2,yTest,yhat)
 
 def clusters_test(data):
         from sklearn.cluster import KMeans
@@ -261,7 +273,7 @@ if __name__ == '__main__':
 
 	plt.style.use('ggplot')
 	data = readCSV(filename, index, header)
-	#data = data[data.TE!=0]
+	#data[data.TE==0]['TE'] = 1
 
 	if info:
 		showInfo(data,x,y)
@@ -297,3 +309,6 @@ if __name__ == '__main__':
 	print "###################"
 	print "MSE:",str(mean_squared_error(yTest,yhat))
         print 'R-squared:',str(r2_score(yTest,yhat))
+	#showRes(yTest.values,yhat.values)
+	#showRes(yTest,yhat)
+	#quit(0)
