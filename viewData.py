@@ -130,6 +130,13 @@ def regression(df):
 	xTrain = preprocessing.scale(xTrain2[regex])
 	xTest = preprocessing.scale(xTest2[regex])
 	'''
+	xTrain = preprocessing.scale(X[regex])
+	xTest2 = xTrain
+	xTest = xTrain
+	yTrain = y
+	yTest = y
+	'''
+	'''
 	#线性回归
 	import statsmodels.formula.api as sm
 	lmodel = sm.OLS(yTrain,xTrain)
@@ -178,7 +185,7 @@ def regression(df):
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
 	#print clf.intercept_,
-	#print clf.coef_
+	print clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
@@ -223,12 +230,42 @@ def clusters(df):
 	#regex = ['Light','SO2','NO2','LSTV','NPP','X','Y']
 	#regex = ['X','Y']
 	regex = ['TE']
-	X = data[regex]
-	yhat = KMeans(n_clusters=10, init='k-means++', max_iter=300, n_init=1,verbose=False).fit_predict(X)
+	X = df[regex]
+	yhat = KMeans(n_clusters=7, init='k-means++', max_iter=300, n_init=1,verbose=False).fit_predict(X)
 	
-	#plt.scatter(data['X'],data['Y'],c=yhat)
+	#plt.scatter(df['X'],df['Y'],c=yhat)
 	#plt.show()
 	return yhat
+
+def proc1(data,code):	
+	#regression(data)
+	#clusters_test(data)
+	data['cluster'] = clusters(data)
+	data.to_csv('result/cluster'+str(code)+'.csv')
+	cluster = data.drop_duplicates(['cluster'])['cluster']
+	yTest = []
+	yhat = []
+	xTest = []
+	for c in cluster:
+		print "###################"
+		print "count(cluster): ",str(len(data[data.cluster==c]))
+		if len(data[data.cluster==c])<10:
+			continue
+		#showInfo(data[data.cluster==c],x,y)
+		x,t,p = regression(data[data.cluster==c])
+		xTest.append(pd.DataFrame(x))
+		yTest.append(pd.DataFrame(t))
+		yhat.append(pd.DataFrame(p))
+	xTest = pd.concat(xTest,ignore_index=True)
+	yTest = pd.concat(yTest,ignore_index=True)
+	yhat = pd.concat(yhat,ignore_index=True)
+	res = xTest
+	res['yTest'] = yTest
+	res['yPred'] = yhat
+	res.to_csv('result/pred'+str(code)+'.csv')
+	print "###################"
+	print "MSE:",str(mean_squared_error(yTest,yhat))
+        print 'R-squared:',str(r2_score(yTest,yhat))
 
 if __name__ == '__main__':
 	try:
@@ -283,32 +320,13 @@ if __name__ == '__main__':
 		pairedGraph(data,x,y)
 	if z:
 		drawMap(x,y,z)
-	#regression(data)
-	#clusters_test(data)
-	data['cluster'] = clusters(data)
-	data.to_csv('result/cluster.csv')
-	cluster = data.drop_duplicates(['cluster'])['cluster']
-	yTest = []
-	yhat = []
-	xTest = []
-	for c in cluster:
-		print "###################"
-		print "count(cluster): ",str(len(data[data.cluster==c]))
-		#showInfo(data[data.cluster==c],x,y)
-		x,t,p = regression(data[data.cluster==c])
-		xTest.append(pd.DataFrame(x))
-		yTest.append(pd.DataFrame(t))
-		yhat.append(pd.DataFrame(p))
-	xTest = pd.concat(xTest,ignore_index=True)
-	yTest = pd.concat(yTest,ignore_index=True)
-	yhat = pd.concat(yhat,ignore_index=True)
-	res = xTest
-	res['yTest'] = yTest
-	res['yPred'] = yhat
-	res.to_csv('result/pred.csv')
-	print "###################"
-	print "MSE:",str(mean_squared_error(yTest,yhat))
-        print 'R-squared:',str(r2_score(yTest,yhat))
-	#showRes(yTest.values,yhat.values)
-	#showRes(yTest,yhat)
-	#quit(0)
+	try:
+		code = data.drop_duplicates(['CODE'])['CODE']
+		for c in code:
+			print '\n\ncode : '+str(c),str(len(data[data.CODE==c]))
+			if len(data[data.CODE==c])<5:
+				continue
+			proc1(data[data.CODE==c],c)
+	except:
+		print "Unexpected error:", sys.exc_info()[0]
+		proc1(data,0)
