@@ -237,11 +237,11 @@ def clusters(df):
 	#plt.show()
 	return yhat
 
-def proc1(data,code):	
+def proc1(data,code,pclusters,ppred):	
 	#regression(data)
 	#clusters_test(data)
 	data['cluster'] = clusters(data)
-	data.to_csv('result/cluster'+str(code)+'.csv')
+	pclusters.append(data)
 	cluster = data.drop_duplicates(['cluster'])['cluster']
 	yTest = []
 	yhat = []
@@ -262,7 +262,7 @@ def proc1(data,code):
 	res = xTest
 	res['yTest'] = yTest
 	res['yPred'] = yhat
-	res.to_csv('result/pred'+str(code)+'.csv')
+	ppred.append(res)
 	print "###################"
 	print "MSE:",str(mean_squared_error(yTest,yhat))
         print 'R-squared:',str(r2_score(yTest,yhat))
@@ -321,12 +321,18 @@ if __name__ == '__main__':
 	if z:
 		drawMap(x,y,z)
 	try:
+		pclusters = []
+		ppred = []
 		code = data.drop_duplicates(['CODE'])['CODE']
 		for c in code:
 			print '\n\ncode : '+str(c),str(len(data[data.CODE==c]))
 			if len(data[data.CODE==c])<5:
 				continue
-			proc1(data[data.CODE==c],c)
+			proc1(data[data.CODE==c],c,pclusters,ppred)
 	except:
 		print "Unexpected error:", sys.exc_info()[0]
-		proc1(data,0)
+		proc1(data,0,pclusters,ppred)
+	ppred = pd.concat(ppred)
+	pclusters = pd.concat(pclusters)
+	pclusters.to_csv('result/cluster.csv')
+	ppred.to_csv('result/pred.csv')
