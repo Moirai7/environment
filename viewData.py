@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from conf import *
 from scipy.stats import gaussian_kde
 import scipy.stats as stats
 from sklearn import preprocessing
@@ -113,29 +114,18 @@ def showRes(yTest,yhat):
 	pass
 
 def regression(df):
-	from sklearn import linear_model
-	from sklearn import ensemble
-	from sklearn.tree import DecisionTreeRegressor
-	from sklearn.cross_validation import train_test_split
-	from sklearn.preprocessing import PolynomialFeatures
-	from sklearn.pipeline import Pipeline
-	#regex = ['Light']
-	#regex = ['Light','SO2','NO2']
-	#regex = ['Light','SO2','NO2','LSTV','NPP']
-	regex = ['NPP','Light','SO2','NO2','LSTV','X','Y']
-	regex2 = ['cluster','NPP','Light','SO2','NO2','LSTV','X','Y']
 	X = df[regex2]
 	y = df['TE']
 	xTrain2,xTest2,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
-	xTrain = preprocessing.scale(xTrain2[regex])
-	xTest = preprocessing.scale(xTest2[regex])
-	'''
-	xTrain = preprocessing.scale(X[regex])
-	xTest2 = xTrain
-	xTest = xTrain
-	yTrain = y
-	yTest = y
-	'''
+	if SPLIT:
+		xTrain = preprocessing.scale(xTrain2[regex])
+		xTest = preprocessing.scale(xTest2[regex])
+	else:
+		xTrain = preprocessing.scale(X[regex])
+		xTest2 = xTrain
+		xTest = xTrain
+		yTrain = y
+		yTest = y
 	'''
 	#线性回归
 	import statsmodels.formula.api as sm
@@ -163,29 +153,10 @@ def regression(df):
 	plt.show()
 	'''
 	#'''
-	#线性回归+贝叶斯+随机森林+多项式
-	clf = linear_model.LinearRegression()
-	#clf = linear_model.BayesianRidge()
-	#clf = ensemble.RandomForestRegressor(n_estimators=200,max_depth=None,max_features=4,oob_score=False,random_state=531)
-	#clf = ensemble.GradientBoostingRegressor(n_estimators=2000,max_depth=7,learning_rate=0.01,subsample=0.5,loss='ls')
-	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.LinearRegression(fit_intercept=False))])
-	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', ensemble.RandomForestRegressor(n_estimators=200,max_depth=None,max_features=4,oob_score=False,random_state=531))])
-	#clf = Pipeline([('poly', PolynomialFeatures(degree=5)),('linear', linear_model.BayesianRidge())])
-	#clf = ensemble.AdaBoostRegressor(linear_model.BayesianRidge(),n_estimators=300, random_state=np.random.RandomState(1))
-	#clf = ensemble.AdaBoostRegressor(DecisionTreeRegressor(max_depth=7),n_estimators=300, random_state=np.random.RandomState(1))
-	#clf = DecisionTreeRegressor(max_depth=7)
-	#'''
-	'''
-	clf.fit(X,y)
-	yhat = clf.predict(X = X)
-	print "MSE:",str(mean_squared_error(y,yhat))
-	print 'R-squared:',str(r2_score(y,yhat))
-	'''
-	#'''
 	clf.fit(xTrain,yTrain)
 	yhat = clf.predict(X = xTest)
 	#print clf.intercept_,
-	print clf.coef_
+	#print clf.coef_
 	#print clf.named_steps['linear'].coef_
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
@@ -231,7 +202,7 @@ def clusters(df):
 	#regex = ['X','Y']
 	regex = ['TE']
 	X = df[regex]
-	yhat = KMeans(n_clusters=7, init='k-means++', max_iter=300, n_init=1,verbose=False).fit_predict(X)
+	yhat = KMeans(n_clusters=CLUNUM, init='k-means++', max_iter=300, n_init=1,verbose=False).fit_predict(X)
 	
 	#plt.scatter(df['X'],df['Y'],c=yhat)
 	#plt.show()
@@ -260,6 +231,7 @@ def proc1(data,code,pclusters,ppred):
 	yTest = pd.concat(yTest,ignore_index=True)
 	yhat = pd.concat(yhat,ignore_index=True)
 	res = xTest
+	res['code'] = code
 	res['yTest'] = yTest
 	res['yPred'] = yhat
 	ppred.append(res)
@@ -330,7 +302,7 @@ if __name__ == '__main__':
 				continue
 			proc1(data[data.CODE==c],c,pclusters,ppred)
 	except:
-		print "Unexpected error:", sys.exc_info()[0]
+		#print "Unexpected error:", sys.exc_info()[0]
 		proc1(data,0,pclusters,ppred)
 	ppred = pd.concat(ppred)
 	pclusters = pd.concat(pclusters)
