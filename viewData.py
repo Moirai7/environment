@@ -161,6 +161,13 @@ def regression(df):
 	print "MSE:",str(mean_squared_error(yTest,yhat))
 	print 'R-squared:',str(r2_score(yTest,yhat))
 	#'''
+	if printTree:
+		from sklearn import tree
+		i_tree = 0
+		for tree_in_forest in clf.estimators_:
+    			with open('result/tree_' + str(i_tree) + '.dot', 'w') as my_file:
+        			my_file = tree.export_graphviz(tree_in_forest, out_file = my_file)
+    			i_tree = i_tree + 1
 	'''
 	#算随机森林feature importance
 	feature = clf.feature_importances_
@@ -224,6 +231,7 @@ def proc1(data,code,pclusters,ppred):
 			continue
 		#showInfo(data[data.cluster==c],x,y)
 		x,t,p = regression(data[data.cluster==c])
+		printTree = False
 		xTest.append(pd.DataFrame(x))
 		yTest.append(pd.DataFrame(t))
 		yhat.append(pd.DataFrame(p))
@@ -301,6 +309,7 @@ if __name__ == '__main__':
 			if len(data[data.CODE==c])<5:
 				continue
 			proc1(data[data.CODE==c],c,pclusters,ppred)
+			
 	except:
 		#print "Unexpected error:", sys.exc_info()[0]
 		proc1(data,0,pclusters,ppred)
