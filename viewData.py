@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*- 
 import sys
 import pandas as pd
-import matplotlib.pyplot as plt
+import matplotlib 
+matplotlib.use('PS')
+import  matplotlib.pyplot as plt
 import numpy as np
 from conf import *
 from scipy.stats import gaussian_kde
 import scipy.stats as stats
 from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error,r2_score
+import tensorflow as tf
 
 def readCSV(filename,index,header):
 	return pd.read_csv(filename, sep=',', engine='python', header=header, index_col=index)
@@ -53,7 +56,7 @@ def pairedGraph(data,x,y):
 	_axes[1][1].set_title('plot')
 	x = xrange(0,len(h))
 	density = gaussian_kde(h)
-        density.covariance_factor = lambda : .25
+	density.covariance_factor = lambda : .25
         density._compute_covariance()
 	_axes[1][2].plot(x,density(x),'-o')
 	_axes[1][2].set_title('density')
@@ -102,16 +105,131 @@ def drawMap(x,y,z):
 	pass
 
 def showRes(yTest,yhat):
-	x = []
-	for t,h in zip(yTest,yhat):
-		#print t,h
-		if t == 0:
-			x.append(h/(t+1))
-		else:
-			x.append(h/t)
-	plt.hist(x,bins=20,normed=True)
+	#x = []
+	#for t,h in zip(yTest,yhat):
+	#	#print t,h
+	#	if t == 0:
+	#		x.append(h/(t+1))
+	#	else:
+	#		x.append(h/t)
+	#plt.hist(x,bins=20,normed=True)
+	#x = xrange(0,len(yTest))
+	x=xrange(0,25000)
+	plt.plot(x,yTest[:25000])
+	plt.plot(x,yhat[:25000])
 	plt.show()
 	pass
+
+# Create model
+def multilayer_perceptron(x,n_input):
+	# Network Parameters
+	n_hidden_1 = 32 # 1st layer number of features
+	n_hidden_2 = 200 # 2nd layer number of features
+	n_hidden_3 = 200
+	n_hidden_4 = 256
+	n_classes = 1
+	
+	# Store layers weight & bias
+	weights = {
+		'h1': tf.Variable(tf.random_normal([n_input, n_hidden_1], 0, 0.01)),
+		'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2], 0, 0.01)),
+		'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3], 0, 0.01)),
+		'h4': tf.Variable(tf.random_normal([n_hidden_3, n_hidden_4], 0, 0.01)),
+		'out': tf.Variable(tf.random_normal([n_hidden_4, n_classes], 0, 0.01))
+	}
+	biases = {
+		'b1': tf.Variable(tf.random_normal([n_hidden_1], 0, 0.01)),
+		'b2': tf.Variable(tf.random_normal([n_hidden_2], 0, 0.01)),
+		'b3': tf.Variable(tf.random_normal([n_hidden_3], 0, 0.01)),
+		'b4': tf.Variable(tf.random_normal([n_hidden_4], 0, 0.01)),
+		'out': tf.Variable(tf.random_normal([n_classes], 0, 0.01))
+	}
+
+	# Hidden layer with RELU activation
+	layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
+	layer_1 = tf.nn.relu(layer_1)
+
+	# Hidden layer with RELU activation
+	layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
+	layer_2 = tf.nn.relu(layer_2)
+
+	# Hidden layer with RELU activation
+	layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
+	layer_3 = tf.nn.relu(layer_3)
+
+	# Hidden layer with RELU activation
+	layer_4 = tf.add(tf.matmul(layer_3, weights['h4']), biases['b4'])
+	layer_4 = tf.nn.relu(layer_4)
+
+	# Output layer with linear activation
+	#out_layer = tf.transpose(tf.matmul(layer_4, weights['out']) + biases['out'])
+	out_layer = tf.matmul(layer_4, weights['out']) + biases['out']
+	return out_layer
+
+def usingMLP(df):
+	from tensorflow.contrib import learn
+	X = df[regex2]
+	y = df['TE']
+	xTrain2,xTest2,yTrain,yTest = train_test_split(X,y,test_size=0.30,random_state=531)
+	if SPLIT:
+		xTrain = preprocessing.scale(xTrain2[regex])
+		xTest = preprocessing.scale(xTest2[regex])
+	else:
+		xTrain = preprocessing.scale(X[regex])
+		xTest2 = xTrain
+		xTest = xTrain
+		yTrain = y
+		yTest = y
+	yTrain = yTrain.as_matrix()
+	yTest = yTest.as_matrix()
+	yTrain = yTrain.reshape((len(yTrain),1))
+	yTest = yTest.reshape((len(yTest),1))
+	# Parameters
+	learning_rate = 0.1
+	training_epochs = 10
+	batch_size = 100
+	display_step = 1
+	dropout_rate = 0.9
+	total_len = xTrain.shape[0]
+	n_input = xTrain.shape[1]
+
+	# tf Graph input
+	x = tf.placeholder("float", [None, n_input])
+	y = tf.placeholder("float", [None, 1])
+	
+	# Construct model
+	pred = multilayer_perceptron(x,n_input)
+	# Define loss and optimizer
+	#cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+	cost = tf.reduce_mean(tf.sqrt(tf.abs(pred*pred-y*y)))
+	#cost = tf.reduce_mean(tf.square(pred-y))
+	optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+	# Launch the graph
+	with tf.Session() as sess:
+	    sess.run(tf.global_variables_initializer())
+
+	    # Training cycle
+	    for epoch in range(training_epochs):
+		training_batch = zip(range(0, len(xTrain), batch_size),
+                             range(batch_size, len(xTrain)+1, batch_size))	
+		epoch_loss = 0
+	        # Loop over all batches
+		for start, end in training_batch:
+	            # Run optimization op (backprop) and cost op (to get loss value)
+	            _, c = sess.run([optimizer,cost], feed_dict={x: xTrain[start:end],y: yTrain[start:end]})
+		    epoch_loss += c
+	        print('Epoch', epoch, 'completed out of', training_epochs, 'loss:', epoch_loss)
+
+	    print ("Optimization Finished!")
+
+	    # Test model
+	    correct_prediction = tf.equal(tf.argmax(pred, 1),  tf.argmax(y,1))
+	    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+	    print sess.run(accuracy, feed_dict={x: xTest, y: yTest})
+	    yhat = sess.run(pred,feed_dict={x: xTest, y: yTest})
+	    print "MSE:",str(mean_squared_error(yTest,yhat))
+            print 'R-squared:',str(r2_score(yTest,yhat))
+	    return (xTest2,yTest,yhat)
 
 def regression(df):
 	X = df[regex2]
@@ -126,6 +244,8 @@ def regression(df):
 		xTest = xTrain
 		yTrain = y
 		yTest = y
+	yTrain = yTrain.as_matrix()
+        yTest = yTest.as_matrix()
 	'''
 	#线性回归
 	import statsmodels.formula.api as sm
@@ -230,7 +350,8 @@ def proc1(data,code,pclusters,ppred):
 		if len(data[data.cluster==c])<10:
 			continue
 		#showInfo(data[data.cluster==c],x,y)
-		x,t,p = regression(data[data.cluster==c])
+		#x,t,p = regression(data[data.cluster==c])
+		x,t,p = usingMLP(data[data.cluster==c])
 		printTree = False
 		xTest.append(pd.DataFrame(x))
 		yTest.append(pd.DataFrame(t))
@@ -290,7 +411,7 @@ if __name__ == '__main__':
 
 	plt.style.use('ggplot')
 	data = readCSV(filename, index, header)
-	#data[data.TE==0]['TE'] = 1
+	#data[data.TE==0.0]['TE'] = 0.00001
 
 	if info:
 		showInfo(data,x,y)
@@ -315,5 +436,6 @@ if __name__ == '__main__':
 		proc1(data,0,pclusters,ppred)
 	ppred = pd.concat(ppred)
 	pclusters = pd.concat(pclusters)
-	pclusters.to_csv('result/cluster.csv')
-	ppred.to_csv('result/pred.csv')
+	pclusters.to_csv('result/cluster.csv',  index = False)
+	ppred.to_csv('result/pred.csv',  index = False)
+	showRes(ppred['yTest'],ppred['yPred'])
