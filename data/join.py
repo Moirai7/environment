@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 def readCSV(filename):
-        return pd.read_csv(filename)
+        return pd.read_csv(filename,sep=' ')
 
 if __name__ == '__main__':
 	try:
@@ -15,4 +15,4 @@ if __name__ == '__main__':
 	data1 = readCSV(filename1)
 	data2 = readCSV(filename2)
 	data = pd.merge(data1,data2,on='ID')
-	data.to_csv('output.csv',index = False)
+	data.to_csv('newdata.csv',index = False)
