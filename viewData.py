@@ -10,7 +10,7 @@ from scipy.stats import gaussian_kde
 import scipy.stats as stats
 from sklearn import preprocessing
 from sklearn.metrics import mean_squared_error,r2_score
-import tensorflow as tf
+#import tensorflow as tf
 
 def readCSV(filename,index,header):
 	return pd.read_csv(filename, sep=',', engine='python', header=header, index_col=index)
@@ -119,7 +119,7 @@ def showRes(yTest,yhat):
 	plt.plot(x,yhat[:25000])
 	plt.show()
 	pass
-
+''''
 # Create model
 def multilayer_perceptron(x,n_input):
 	# Network Parameters
@@ -165,7 +165,6 @@ def multilayer_perceptron(x,n_input):
 	#out_layer = tf.transpose(tf.matmul(layer_4, weights['out']) + biases['out'])
 	out_layer = tf.matmul(layer_4, weights['out']) + biases['out']
 	return out_layer
-
 def usingMLP(df):
 	from tensorflow.contrib import learn
 	X = df[regex2]
@@ -230,7 +229,7 @@ def usingMLP(df):
 	    print "MSE:",str(mean_squared_error(yTest,yhat))
             print 'R-squared:',str(r2_score(yTest,yhat))
 	    return (xTest2,yTest,yhat)
-
+'''
 def regression(df):
 	X = df[regex2]
 	y = df['TE']
