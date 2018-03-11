@@ -25,11 +25,11 @@ def save(filename,data,title):
         data = ' \r\n'.join(res)
         f.write(data)
 
-def confine(data,maxs=1.5):
+def confine(data,maxs=1.1):
 	data[data>maxs]=maxs
 	return data
 
-filename = 'pure_r_sr.txt'
+filename = 'pure_s_sr.txt'
 data,title = read_data(filename)
 data = confine(data)
 save(filename+'2',data,title)

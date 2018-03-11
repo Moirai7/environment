@@ -78,10 +78,11 @@ def run():
 	filenames = ['pure_s_ndvi','pure_s_sr']#TODO 两个文件名字
 	'''
 
-	types = 'std'#TODO 可修改成std或mean
+	types = 'mean'#TODO 可修改成std或mean
 	slopes = [0.775,0.84]
 	intercepts = [0.003,0.006]
-	filenames = ['pure_s_ndvi','pure_s_sr']#TODO 两个文件名字
+	filenames = ['pure_r_sr_less_than_1.1','pure_s_sr_less_than_1.1']#TODO 两个文件名字
+	#filenames = ['pure_r_ndvi','pure_r_sr']#TODO 两个文件名字
 	#filenames = ['pure_r_ndvi','pure_r_sr']#TODO 两个文件名字
 
  	#windows = [33,67,133,266]#TODO 这里的windows可按照需求修改
